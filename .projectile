@@ -1,0 +1,5 @@
+-/target
+-/cljx-target
+-/resources/public/cljs
+-/resources/public/bower_components
+-/resources/public/node_modules
