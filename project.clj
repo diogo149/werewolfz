@@ -45,6 +45,9 @@
                          [ring/ring-anti-forgery "1.0.0"]
                          [com.stuartsierra/component "0.2.1"]
                          [hiccup "1.0.5"]
+                         ;; [korma "0.3.2"]
+                         ;; http://mvnrepository.com/artifact/org.postgresql/postgresql
+                         ;; [org.postgresql/postgresql "9.3-1101-jdbc41"]
                          [http-kit "2.1.18"]]
           :source-paths ["src/clj"
                          "cljx-target/clj"
