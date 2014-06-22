@@ -16,7 +16,8 @@
     (log/trace "Received event:" event)
     (case kw
       ;; sente basic messages
-      :chsk/state nil ;; TODO handle connection event
+      :chsk/state (do (state/set-connected? (:open? payload))
+                      (state/flush-send-buffer! send-fn))
       :chsk/timeout (log/error "Timeout occured for websocket.")
       :chsk/recv (let [[id data] payload]
                    (client-handler {:send-fn send-fn
@@ -27,6 +28,21 @@
 ;; ---------------
 ;; handler methods
 ;; ---------------
+
+(defmethod client-handler :login/success
+  [{:keys [data]}]
+  (let [{:keys [login-name]} data]
+    (println "LOGGED IN AS" login-name)
+    (state/set-login-state :success)
+    (state/set-login-name login-name)))
+
+(defmethod client-handler :login/failure
+  [{:keys [data]}]
+  (let [{:keys [error]} data]
+    (state/set-login-state :failure)
+    (case error
+      :not-found (println "LOGIN NOT FOUND") ;; TODO
+      :taken (println "LOGIN TAKEN")))) ;; TODO
 
 (defmethod client-handler :chat/msg
   [{:keys [data]}]

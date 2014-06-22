@@ -31,6 +31,22 @@
 ;; handler methods
 ;; ---------------
 
+(defmethod server-handler :login/load
+  [{:keys [uid data send-fn]}]
+  (send-fn uid
+           (if-let [login-name (state/uid->login uid)]
+             [:login/success {:login-name login-name}]
+             [:login/failure {:error :not-found}])))
+
+(defmethod server-handler :login/set
+  [{:keys [uid data send-fn]}]
+  (let [{:keys [login-name]} data]
+    (log/trace "Trying to login as" login-name)
+    (send-fn uid
+             (if-let [err (state/set-login uid login-name)]
+               [:login/failure {:error err}]
+               [:login/success {:login-name login-name}]))))
+
 (defmethod server-handler :chat/join
   [{:keys [uid data send-fn]}]
   (let [{:keys [room-id]} data]
@@ -45,8 +61,6 @@
   [{:keys [data uid send-fn]}]
   (let [{:keys [text room-id]} data
         chatroom (state/get-chatroom room-id)]
-    (println "RI" room-id)
-    (println "CR" chatroom)
     (doseq [user-id chatroom]
       (send-fn user-id [:chat/msg {:text text
                                    :room-id room-id}]))))

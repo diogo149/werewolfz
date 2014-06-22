@@ -4,6 +4,83 @@
 
 (def ratom #+cljs reagent/atom #+clj atom)
 
+;; -----------------
+;; connection status
+;; -----------------
+
+(def connected?-ratom (ratom false))
+(def send-buffer-ratom (ratom []))
+
+(defn connected?
+  []
+  @connected?-ratom)
+
+(defn set-connected?
+  [b]
+  (reset! connected?-ratom b))
+
+(defn send-buffer-msg!
+  [msg]
+  (swap! send-buffer-ratom conj msg))
+
+(defn flush-send-buffer!
+  [send-fn]
+  (let [contents (atom nil)]
+    (swap! send-buffer-ratom
+           (fn [b]
+             (reset! contents b)
+             []))
+    (doseq [msg @contents]
+      (println send-fn)
+      (send-fn msg))))
+
+;; ------
+;; logins
+;; ------
+
+(def login-name-ratom (ratom nil))
+(def login-state-ratom (ratom :?))
+
+(defn get-login-name
+  []
+  @login-name-ratom)
+
+(defn set-login-name
+  [login-name]
+  (reset! login-name-ratom login-name))
+
+(defn get-login-state
+  []
+  @login-state-ratom)
+
+(defn set-login-state
+  [state]
+  (reset! login-state-ratom state))
+
+(def logins-ratom (ratom {}))
+
+(defn set-login
+  [uid login-name]
+  (let [err (atom nil)]
+    (swap! logins-ratom
+           (fn [logins]
+             (if (contains? logins login-name)
+               (do (reset! err :taken)
+                   logins)
+               (assoc logins login-name uid))))
+    @err))
+
+(defn uid->login
+  [uid]
+  (->> @logins-ratom
+       (filter (comp #(= uid %) second))
+       first
+       first))
+
+(defn login->uid
+  [login]
+  (get @logins-ratom login))
+
 ;; ----
 ;; chat
 ;; ----
