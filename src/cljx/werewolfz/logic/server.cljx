@@ -1,5 +1,6 @@
 (ns werewolfz.logic.server
   (:require [werewolfz.utils.logging :as log]
+            [werewolfz.logic.game :as game]
             [werewolfz.logic.state :as state]))
 
 (defmulti server-handler
@@ -69,7 +70,23 @@
 (defmethod server-handler :rooms/leave
   [{:keys [uid data send-fn]}]
   (state/leave-room uid)
+  ;; TODO send update to everyone
   (send-fn uid [:rooms/not-found]))
+
+(defmethod server-handler :rooms/start
+  [{:keys [uid data send-fn]}]
+  (let [{:keys [room-id]} data]
+    (let [uids (state/room->uids room-id) ;; TODO dedupe
+          login-names (map state/uid->login uids)
+          game-state (game/basic-setup (count login-names) login-names)]
+      (state/set-game room-id game-state)
+      (doseq [room-uid uids]
+        (send-fn room-uid
+                 [:game/start
+                  {:start-role (-> game-state
+                                   :starting-roles
+                                   ;; OPTIMIZE
+                                   (get (state/uid->login room-uid)))}])))))
 
 
 

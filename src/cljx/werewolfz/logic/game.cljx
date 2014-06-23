@@ -9,7 +9,7 @@
 
 
 (defn random-char []
-  (nth alphanumeric-chars (rand (count alphanumeric-chars))))
+  (nth alphanumeric-chars (int (rand (count alphanumeric-chars)))))
 
 (defn random-alphanumeric-string
   []

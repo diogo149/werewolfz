@@ -1,7 +1,8 @@
 (ns werewolfz.core
   (:require [reagent.core :as reagent]
             [werewolfz.logic.state :as state]
-            [werewolfz.logic.services :as srv]))
+            [werewolfz.logic.services :as srv]
+            [werewolfz.logic.game :as game]))
 
 (defn chat-component
   []
@@ -41,11 +42,16 @@
 
 (defn room-component
   []
-  [:div [:button {:on-click srv/leave-room} "Leave Room"]
-   [:br]
-   "In room: " (state/get-room-state)
-   [:br]
-   "People in room:" (pr-str (state/get-room-content))])
+  (let [room-id (state/get-room-state)
+        login-names (state/get-room-content)]
+    [:div
+     [:button {:on-click srv/leave-room} "Leave Room"]
+     (when (<= 2 (count login-names))
+       [:button {:on-click #(srv/start-game room-id)} "Start!"])
+     [:br]
+     "In room: " room-id
+     [:br]
+     "People in room:" (pr-str login-names)]))
 
 (defn logged-in-component
   []

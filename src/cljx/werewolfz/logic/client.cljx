@@ -69,3 +69,9 @@
   (let [{:keys [room-id users]} data]
     (println "USERS" users)
     (state/set-chatroom room-id users)))
+
+(defmethod client-handler :game/start
+  [{:keys [data]}]
+  (let [{:keys [start-role]} data]
+    ;; TODO something
+    (println start-role)))

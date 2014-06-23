@@ -39,6 +39,10 @@
   []
   (*send!* [:rooms/leave]))
 
+(defn start-game
+  [room-id]
+  (*send!* [:rooms/start {:room-id room-id}]))
+
 ;; ----
 ;; chat
 ;; ----

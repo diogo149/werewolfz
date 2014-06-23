@@ -128,6 +128,10 @@
 
 
 
+
+
+
+
 (def rooms-ratom (ratom nil))
 (defn get-room
   [room-id]
@@ -135,6 +139,20 @@
 (defn set-room
   [room-id val]
   (swap! rooms-ratom assoc room-id val))
+
+;; ----
+;; game
+;; ----
+
+(def games-ratom (ratom nil))
+
+(defn set-game
+  [room-id game-state]
+  (swap! games-ratom assoc room-id game-state))
+
+(defn get-game
+  [room-id]
+  (get @games-ratom room-id))
 
 ;; ----
 ;; chat
