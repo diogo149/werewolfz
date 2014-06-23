@@ -1,1 +1,1 @@
-web: lein with-profile clj run
+web: lein web
