@@ -24,12 +24,10 @@
                         "with-profile" "cljx" "cljx" "auto,"]
                 ;; clj
                 "clj" ["do" "clean,"
-                       "compile,"
                        "repl,"]
-                "web" ["do" "clean-all,"
-                       "cljx1",
-                       "cljs1",
-                       "with-profile" "clj" "run",]}}]
+                "compile" ["do" "clean-all,"
+                           "cljx1",
+                           "cljs1",]}}]
    :cljx {:plugins [[com.keminglabs/cljx "0.4.0"]]
           :cljx {:builds [{:source-paths ["src/cljx"]
                            :output-path "cljx-target/cljs"
@@ -89,4 +87,6 @@
                        :externs [ ;; "jquery/externs/jquery.js"
                                  "src/js/extern.js"]
                        :closure-warnings
-                       {:non-standard-jsdoc :off}}}]}}]})
+                       {:non-standard-jsdoc :off}}}]}}]
+   ;; hack to get heroku to work
+   :production [:dev]})
