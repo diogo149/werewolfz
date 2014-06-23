@@ -61,7 +61,8 @@
 (defmethod client-handler :rooms/chat
   [{:keys [data]}]
   (let [{:keys [text sender]} data]
-    (state/conj-chat [sender text (js/Date.)])))
+    (state/conj-chat [sender text
+                      #+clj (java.util.Date.) #+cljs (js/Date.)])))
 
 (defmethod client-handler :game/start
   [{:keys [data]}]
