@@ -47,6 +47,34 @@
                [:login/failure {:error err}]
                [:login/success {:login-name login-name}]))))
 
+(defmethod server-handler :rooms/load
+  [{:keys [uid data send-fn] :as msg}]
+  (if-let [room-id (state/uid->room uid)]
+    ;; want to behave the same as a join
+    (server-handler (assoc msg
+                      :id :rooms/join
+                      :data {:room-id room-id}))
+    (send-fn uid [:rooms/not-found])))
+
+(defmethod server-handler :rooms/join
+  [{:keys [uid data send-fn]}]
+  (let [{:keys [room-id]} data]
+    (state/join-room uid room-id)
+    (send-fn uid [:rooms/found {:room-id room-id}])
+    (let [uids (state/room->uids room-id)
+          login-names (map state/uid->login uids)] ;; OPTIMIZE
+      (doseq [room-uid uids]
+        (send-fn room-uid [:rooms/content {:login-names login-names}])))))
+
+(defmethod server-handler :rooms/leave
+  [{:keys [uid data send-fn]}]
+  (state/leave-room uid)
+  (send-fn uid [:rooms/not-found]))
+
+
+
+
+
 (defmethod server-handler :chat/join
   [{:keys [uid data send-fn]}]
   (let [{:keys [room-id]} data]

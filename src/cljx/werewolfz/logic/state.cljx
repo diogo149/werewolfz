@@ -31,7 +31,6 @@
              (reset! contents b)
              []))
     (doseq [msg @contents]
-      (println send-fn)
       (send-fn msg))))
 
 ;; ------
@@ -80,6 +79,62 @@
 (defn login->uid
   [login]
   (get @logins-ratom login))
+
+;; -----
+;; rooms
+;; -----
+
+(def uid->room-ratom (ratom nil))
+(def room-state-ratom (ratom :?))
+(def room-content-ratom (ratom nil))
+
+(defn get-rooms
+  []
+  (map str (range 3)))
+
+(defn uid->room
+  [uid]
+  (get @uid->room-ratom uid))
+
+(defn room->uids
+  [room-id]
+  (->> @uid->room-ratom
+       (filter (comp #(= % room-id) second))
+       (map first)))
+
+(defn join-room
+  [uid room-id]
+  (swap! uid->room-ratom assoc uid room-id))
+
+(defn leave-room
+  [uid]
+  (swap! uid->room-ratom dissoc uid))
+
+(defn get-room-state
+  []
+  @room-state-ratom)
+
+(defn set-room-state
+  [state]
+  (reset! room-state-ratom state))
+
+(defn get-room-content
+  []
+  @room-content-ratom)
+
+(defn set-room-content
+  [login-names]
+  (reset! room-content-ratom login-names))
+
+
+
+(def rooms-ratom (ratom nil))
+(defn get-room
+  [room-id]
+  (get @rooms-ratom room-id))
+(defn set-room
+  [room-id val]
+  (swap! rooms-ratom assoc room-id val))
 
 ;; ----
 ;; chat

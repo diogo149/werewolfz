@@ -17,11 +17,27 @@
 
 (defn load-login
   []
-  (*send!* [:login/load {}]))
+  (*send!* [:login/load]))
 
 (defn set-login
   [login-name]
   (*send!* [:login/set {:login-name login-name}]))
+
+;; -----
+;; rooms
+;; -----
+
+(defn load-room
+  []
+  (*send!* [:rooms/load]))
+
+(defn join-room
+  [room-id]
+  (*send!* [:rooms/join {:room-id room-id}]))
+
+(defn leave-room
+  []
+  (*send!* [:rooms/leave]))
 
 ;; ----
 ;; chat

@@ -44,6 +44,20 @@
       :not-found (println "LOGIN NOT FOUND") ;; TODO
       :taken (println "LOGIN TAKEN")))) ;; TODO
 
+(defmethod client-handler :rooms/found
+  [{:keys [data]}]
+  (let [{:keys [room-id]} data]
+    (state/set-room-state room-id)))
+
+(defmethod client-handler :rooms/not-found
+  [{:keys [data]}]
+  (state/set-room-state :not-found))
+
+(defmethod client-handler :rooms/content
+  [{:keys [data]}]
+  (let [{:keys [login-names]} data]
+    (state/set-room-content login-names)))
+
 (defmethod client-handler :chat/msg
   [{:keys [data]}]
   (let [{:keys [text room-id]} data]
