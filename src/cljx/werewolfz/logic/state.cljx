@@ -158,7 +158,7 @@
 ;; chat
 ;; ----
 
-(def chat-ratom (ratom nil))
+(def chat-ratom (ratom []))
 (def current-chatroom-ratom (ratom nil))
 
 (defn get-chat
@@ -167,16 +167,8 @@
 
 (defn conj-chat
   [chat]
-  (swap! chat-ratom #(->> % (cons chat) (take 5))))
+  (swap! chat-ratom conj chat))
 
 (defn clear-chat
   []
-  (reset! chat-ratom nil))
-
-(defn get-current-chatroom
-  []
-  @current-chatroom-ratom)
-
-(defn set-current-chatroom
-  [chatroom]
-  (reset! current-chatroom-ratom chatroom))
+  (reset! chat-ratom []))
