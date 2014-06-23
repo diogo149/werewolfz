@@ -44,6 +44,7 @@
 
 (defn close-websocket
   [{:keys [uid send-fn]}]
+  ;; TODO maybe clear the `login-name`?
   ;; disconnect from any rooms
   (when-let [room-id (state/uid->room uid)]
     (state/leave-room uid)
@@ -97,7 +98,8 @@
         room-id (state/uid->room uid)
         uids (state/room->uids room-id)]
     (doseq [room-uid uids]
-      (send-fn room-uid [:rooms/chat {:text text}]))))
+      (send-fn room-uid [:rooms/chat {:text text
+                                      :sender (state/uid->login uid)}]))))
 
 (defmethod server-handler :rooms/start
   [{:keys [uid data send-fn]}]

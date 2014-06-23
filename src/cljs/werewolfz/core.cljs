@@ -16,8 +16,10 @@
                                       (srv/new-chat @chat)
                                       (reset! chat "")))}]
        (into [:ul]
-             (for [chat (state/get-chat)]
-               [:li chat]))])))
+             (for [[sender text date] (state/get-chat)]
+               [:li [:b sender ": "]
+                "(" (str (.getHours date)) ":" (.getMinutes date) ") "
+                text]))])))
 
 (defn login-component
   []
