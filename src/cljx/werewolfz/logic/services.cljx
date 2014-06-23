@@ -4,8 +4,24 @@
             [werewolfz.logic.state :as state]))
 
 (def ^:dynamic *send!*
-  #+cljs ws/send!
+  #+cljs
+  (fn [msg]
+    (if (state/connected?)
+      (ws/send! msg)
+      (state/send-buffer-msg! msg)))
   #+clj (fn [& args] (log/info "Sending on ws:" args)))
+
+;; -----
+;; login
+;; -----
+
+(defn load-login
+  []
+  (*send!* [:login/load {}]))
+
+(defn set-login
+  [login-name]
+  (*send!* [:login/set {:login-name login-name}]))
 
 ;; ----
 ;; chat

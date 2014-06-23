@@ -15,7 +15,7 @@
        {:name "viewport"
         :content "width=device-width, initial-scale=1.0, maximum-scale=2.0"}]
       ;; [:link {:rel "shortcut icon", :href "/icon/favicon.ico"}]
-      [:title "One Night..."]]
+      [:title "Werewolfz"]]
      [:body
       [:div {:id "content"} "Loading..."]
       (when-not production?

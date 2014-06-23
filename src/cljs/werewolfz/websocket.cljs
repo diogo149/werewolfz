@@ -14,7 +14,7 @@
               send-fn ; ChannelSocket's send API fn
               state ; Watchable, read-only atom
               chsk]} socket-map
-      handler (werewolfz.logic.client/handler send-fn)]
+      handler (werewolfz.logic.client/handler {:send-fn send-fn})]
 
   (def send!
     "Function to send a message over a websocket connection. Takes in either
