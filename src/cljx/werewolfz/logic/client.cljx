@@ -58,17 +58,11 @@
   (let [{:keys [login-names]} data]
     (state/set-room-content login-names)))
 
-(defmethod client-handler :chat/msg
+(defmethod client-handler :rooms/chat
   [{:keys [data]}]
-  (let [{:keys [text room-id]} data]
-    (when (= room-id (state/get-current-chatroom))
-      (state/conj-chat text))))
-
-(defmethod client-handler :chat/room
-  [{:keys [data]}]
-  (let [{:keys [room-id users]} data]
-    (println "USERS" users)
-    (state/set-chatroom room-id users)))
+  (let [{:keys [text sender]} data]
+    (state/conj-chat [sender text
+                      #+clj (java.util.Date.) #+cljs (js/Date.)])))
 
 (defmethod client-handler :game/start
   [{:keys [data]}]

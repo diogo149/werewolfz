@@ -14,6 +14,7 @@ not be included in a production build of the application."
    [clojure.core.async :as async]
    [com.stuartsierra.component :as component]
    [werewolfz.app :as app]
+   [werewolfz.utils.timer :as timer]
    [werewolfz.logic.state :as state]
    [werewolfz.logic.game :as game]))
 

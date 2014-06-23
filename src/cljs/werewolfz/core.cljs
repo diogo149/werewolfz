@@ -10,15 +10,17 @@
   (let [chat (reagent/atom "")]
     (fn []
       [:div
-       (into [:ul]
-             (for [chat (state/get-chat)]
-               [:li chat]))
        [:input {:type "text"
                 :value @chat
                 :on-change #(reset! chat (-> % .-target .-value))
                 :on-key-up  (fn [e] (when (= 13 (.-which e))
-                                     (srv/new-chat @chat)
-                                     (reset! chat "")))}]])))
+                                      (srv/new-chat @chat)
+                                      (reset! chat "")))}]
+       (into [:ul]
+             (for [[sender text date] (state/get-chat)]
+               [:li [:b sender ": "]
+                "(" (str (.getHours date)) ":" (.getMinutes date) ") "
+                text]))])))
 
 (defn login-component
   []
@@ -34,12 +36,10 @@
 
 (defn rooms-component
   []
-  (if (state/get-current-chatroom)
-    [chat-component]
-    [:div [:h2 "Rooms:"]
-     (into [:ul]
-           (for [room-id (state/get-rooms)]
-             [:li {:on-click #(srv/join-room room-id)} room-id]))]))
+  [:div [:h2 "Rooms:"]
+   (into [:ul]
+         (for [room-id (state/get-rooms)]
+           [:li {:on-click #(srv/join-room room-id)} room-id]))])
 
 (defn room-component
   []
@@ -53,7 +53,12 @@
      "In room: " room-id
      [:br]
      "People in room:" (pr-str login-names)
-     [game-view/game-component]]))
+
+     [game-view/game-component]
+
+     [:br]
+     [:h3 "Chat"]
+     [chat-component]]))
 
 (defn logged-in-component
   []

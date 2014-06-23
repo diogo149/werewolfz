@@ -49,14 +49,7 @@
 
 (defn new-chat
   [chat]
-  (*send!* [:chat/msg {:text chat
-                       :room-id (state/get-current-chatroom)}]))
-
-(defn join-chat
-  [room-id]
-  (state/set-current-chatroom room-id)
-  (*send!* [:chat/join {:room-id room-id}]))
-
+  (*send!* [:rooms/chat {:text chat}]))
 
 ;; -------------
 ;; game services
