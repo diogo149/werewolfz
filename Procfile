@@ -1,1 +1,1 @@
-web: lein web
+web: java -jar target/werewolfz-standalone.jar

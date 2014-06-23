@@ -26,10 +26,6 @@
            ;; clj
            "clj" ["do" "clean,"
                   "repl,"]
-           "web" ["do" "clean-all,"
-                  "cljx1",
-                  "cljs1",
-                  "with-profile" "clj" "run",]
            "uberjar" ["do" "clean-all,"
                       "cljx1,"
                       "cljs1,"
@@ -93,7 +89,8 @@
                                  "src/js/extern.js"]
                        :closure-warnings
                        {:non-standard-jsdoc :off}}}]}}]
-   :uberjar [:dev-deps  ;; hack to get heroku working
-             {:aot :all
-              :uberjar-name "werewolfz-standalone.jar"
-              :clean-non-project-classes true}]})
+   :uberjar [:clj
+             {:aot [;; for some reason, this is necessary along with the regex
+                    werewolfz.main
+                    #"werewolfz.*"]
+              :uberjar-name "werewolfz-standalone.jar"}]})
