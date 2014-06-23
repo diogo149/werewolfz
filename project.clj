@@ -89,12 +89,4 @@
                        :externs [ ;; "jquery/externs/jquery.js"
                                  "src/js/extern.js"]
                        :closure-warnings
-                       {:non-standard-jsdoc :off}}}]}}]
-   :uberjar [:shared
-             :clj
-             {:aot :all
-              :main werewolfz.main
-              :source-paths ["src/clj"
-                         "cljx-target/clj"
-                         "src/macros"]
-              :uberjar-name "werewolfz-standalone.jar"}]})
+                       {:non-standard-jsdoc :off}}}]}}]})
