@@ -1,6 +1,7 @@
 (defproject werewolfz "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.6.0"]]
   :jvm-opts ["-Xmx512m" "-Xms512m"]
+  :min-lein-version "2.0.0"
   :profiles
   {:dev [:clj {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
                :plugins [[lein-shell "0.4.0"]]
@@ -24,7 +25,11 @@
                 ;; clj
                 "clj" ["do" "clean,"
                        "compile,"
-                       "repl,"]}}]
+                       "repl,"]
+                "web" ["do" "clean-all,"
+                       "cljx1",
+                       "cljs1",
+                       "with-profile" "clj" "run",]}}]
    :cljx {:plugins [[com.keminglabs/cljx "0.4.0"]]
           :cljx {:builds [{:source-paths ["src/cljx"]
                            :output-path "cljx-target/cljs"
@@ -84,4 +89,12 @@
                        :externs [ ;; "jquery/externs/jquery.js"
                                  "src/js/extern.js"]
                        :closure-warnings
-                       {:non-standard-jsdoc :off}}}]}}]})
+                       {:non-standard-jsdoc :off}}}]}}]
+   :uberjar [:shared
+             :clj
+             {:aot :all
+              :main werewolfz.main
+              :source-paths ["src/clj"
+                         "cljx-target/clj"
+                         "src/macros"]
+              :uberjar-name "werewolfz-standalone.jar"}]})
