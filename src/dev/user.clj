@@ -14,7 +14,8 @@ not be included in a production build of the application."
    [clojure.core.async :as async]
    [com.stuartsierra.component :as component]
    [werewolfz.app :as app]
-   [werewolfz.logic.state :as state]))
+   [werewolfz.logic.state :as state]
+   [werewolfz.logic.game :as game]))
 
 (def system
     "A Var containing an object representing the application under development."
