@@ -30,22 +30,44 @@
                                       (srv/set-login @login-name)
                                       (reset! login-name "")))}]])))
 
-(defn chatroom-component
+(defn rooms-component
   []
   (if (state/get-current-chatroom)
     [chat-component]
-    [:div [:h2 "Chatrooms:" (pr-str (state/get-login-name))]
+    [:div [:h2 "Rooms:"]
      (into [:ul]
-           (for [chatroom ["cleo" "nixon" "angel"]]
-             [:li {:on-click #(srv/join-chat chatroom)} chatroom]))]))
+           (for [room-id (state/get-rooms)]
+             [:li {:on-click #(srv/join-room room-id)} room-id]))]))
+
+(defn room-component
+  []
+  [:div [:button {:on-click srv/leave-room} "Leave Room"]
+   [:br]
+   "In room: " (state/get-room-state)
+   [:br]
+   "People in room:" (pr-str (state/get-room-content))])
+
+(defn logged-in-component
+  []
+  (reagent/create-class
+   {:component-will-mount #(srv/load-room)
+    :render
+    (fn [this]
+      (case (state/get-room-state)
+        :? [:div "Loading..."]
+        :not-found [rooms-component]
+        [room-component]))}))
 
 (defn root
   []
-  [:div [:h1 "Hello " (or (state/get-login-name) "stranger")]
-   (case (state/get-login-state)
-     :? (do (srv/load-login)
-            [:div "Loading..."])
-     :failure [login-component]
-     :success [chatroom-component])])
+  (reagent/create-class
+   {:component-will-mount #(srv/load-login)
+    :render
+    (fn [this]
+      [:div [:h1 "Hello " (or (state/get-login-name) "stranger")]
+       (case (state/get-login-state)
+         :? [:div "Loading..."]
+         :failure [login-component]
+         :success [logged-in-component])])}))
 
 (reagent/render-component [root] (.getElementById js/document "content"))
