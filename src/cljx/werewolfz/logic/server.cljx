@@ -3,6 +3,8 @@
             [werewolfz.logic.game :as game]
             [werewolfz.logic.state :as state]))
 
+(declare close-websocket)
+
 (defmulti server-handler
   "Methods for handling messages for the server"
   :id)
@@ -20,13 +22,32 @@
       (log/trace "Received event:" event)
       (case id
         :chsk/uidport-open (log/trace "Opening websocket")
-        :chsk/uidport-close (log/trace "Closing websocket")
+        :chsk/uidport-close (close-websocket {:uid uid
+                                              :send-fn send-fn
+                                              :session session})
         :chsk/ws-ping nil
         (server-handler (merge event-msg {:send-fn send-fn
                                           :id id
                                           :data data
                                           :uid uid
                                           :session session}))))))
+;; --------------
+;; misc functions
+;; --------------
+
+(defn sync-room-content
+  [send-fn room-id]
+  (let [uids (state/room->uids room-id)
+        login-names (map state/uid->login uids)] ;; OPTIMIZE
+    (doseq [room-uid uids]
+      (send-fn room-uid [:rooms/content {:login-names login-names}]))))
+
+(defn close-websocket
+  [{:keys [uid send-fn]}]
+  ;; disconnect from any rooms
+  (when-let [room-id (state/uid->room uid)]
+    (state/leave-room uid)
+    (sync-room-content send-fn room-id)))
 
 ;; ---------------
 ;; handler methods
@@ -52,9 +73,8 @@
   [{:keys [uid data send-fn] :as msg}]
   (if-let [room-id (state/uid->room uid)]
     ;; want to behave the same as a join
-    (server-handler (assoc msg
-                      :id :rooms/join
-                      :data {:room-id room-id}))
+    (do (send-fn uid [:rooms/found {:room-id room-id}])
+        (sync-room-content send-fn room-id))
     (send-fn uid [:rooms/not-found])))
 
 (defmethod server-handler :rooms/join
@@ -62,16 +82,22 @@
   (let [{:keys [room-id]} data]
     (state/join-room uid room-id)
     (send-fn uid [:rooms/found {:room-id room-id}])
-    (let [uids (state/room->uids room-id)
-          login-names (map state/uid->login uids)] ;; OPTIMIZE
-      (doseq [room-uid uids]
-        (send-fn room-uid [:rooms/content {:login-names login-names}])))))
+    (sync-room-content send-fn room-id)))
 
 (defmethod server-handler :rooms/leave
   [{:keys [uid data send-fn]}]
-  (state/leave-room uid)
-  ;; TODO send update to everyone
-  (send-fn uid [:rooms/not-found]))
+  (let [room-id (state/uid->room uid)]
+    (state/leave-room uid)
+    (send-fn uid [:rooms/not-found])
+    (sync-room-content send-fn room-id)))
+
+(defmethod server-handler :rooms/chat
+  [{:keys [data uid send-fn]}]
+  (let [{:keys [text]} data
+        room-id (state/uid->room uid)
+        uids (state/room->uids room-id)]
+    (doseq [room-uid uids]
+      (send-fn room-uid [:rooms/chat {:text text}]))))
 
 (defmethod server-handler :rooms/start
   [{:keys [uid data send-fn]}]
@@ -87,25 +113,3 @@
                                    :starting-roles
                                    ;; OPTIMIZE
                                    (get (state/uid->login room-uid)))}])))))
-
-
-
-
-
-(defmethod server-handler :chat/join
-  [{:keys [uid data send-fn]}]
-  (let [{:keys [room-id]} data]
-    (when room-id
-      (state/subscribe-chatroom uid room-id)
-      (let [chatroom (state/get-chatroom room-id)]
-        (doseq [user-id chatroom]
-          (send-fn user-id [:chat/room {:room-id room-id
-                                        :users chatroom}]))))))
-
-(defmethod server-handler :chat/msg
-  [{:keys [data uid send-fn]}]
-  (let [{:keys [text room-id]} data
-        chatroom (state/get-chatroom room-id)]
-    (doseq [user-id chatroom]
-      (send-fn user-id [:chat/msg {:text text
-                                   :room-id room-id}]))))

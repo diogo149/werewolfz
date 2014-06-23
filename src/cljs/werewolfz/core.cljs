@@ -51,7 +51,10 @@
      [:br]
      "In room: " room-id
      [:br]
-     "People in room:" (pr-str login-names)]))
+     "People in room:" (pr-str login-names)
+     [:br]
+     [:h3 "Chat"]
+     [chat-component]]))
 
 (defn logged-in-component
   []
