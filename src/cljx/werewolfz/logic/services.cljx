@@ -56,3 +56,26 @@
   [room-id]
   (state/set-current-chatroom room-id)
   (*send!* [:chat/join {:room-id room-id}]))
+
+
+;; -------------
+;; game services
+;; -------------
+
+(defmulti make-choice
+  :choice-type)
+
+;; TODO: state/set-choice to be called in game.cljs
+;; services only for making the choice.
+(defmethod make-choice :seer-first-choice
+  [{:keys [choice]}]
+  (if :middle
+    (state/set-choice {:choice-type :seer-choose-middle-first})
+    (state/set-choice {:choice-type :seer-choose-person})))
+
+(defmethod make-choice :seer-choose-person
+  [{:keys [person]}]
+  (state/set-choice nil)
+  (*send!* [:game/input {:input-type :seer
+                         :seer-choice "person"
+                         :seer-person-to-see person}]))

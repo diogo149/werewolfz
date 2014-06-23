@@ -50,6 +50,7 @@
 
 (defmethod server-handler :rooms/load
   [{:keys [uid data send-fn] :as msg}]
+  (println "loading rooms!")
   (if-let [room-id (state/uid->room uid)]
     ;; want to behave the same as a join
     (server-handler (assoc msg
@@ -109,3 +110,10 @@
     (doseq [user-id chatroom]
       (send-fn user-id [:chat/msg {:text text
                                    :room-id room-id}]))))
+
+(defmethod server-handler :game/choice
+  [{:keys [data uid send-fn]}]
+  ;; TODO: After the choice is made, try running game until you can't anymore or it
+  ;; is daytime.
+  (state/swap-game (state/uid->room uid)
+                   #(game/add-input % (state/uid->login uid) data)))

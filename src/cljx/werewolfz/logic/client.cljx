@@ -74,4 +74,4 @@
   [{:keys [data]}]
   (let [{:keys [start-role]} data]
     ;; TODO something
-    (println start-role)))
+    (state/set-starting-role (str start-role))))

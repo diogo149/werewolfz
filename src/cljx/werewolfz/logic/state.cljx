@@ -128,10 +128,6 @@
 
 
 
-
-
-
-
 (def rooms-ratom (ratom nil))
 (defn get-room
   [room-id]
@@ -153,6 +149,10 @@
 (defn get-game
   [room-id]
   (get @games-ratom room-id))
+
+(defn swap-game
+  [game-id update-fn]
+  (swap! games-ratom update-in [game-id] update-fn))
 
 ;; ----
 ;; chat
@@ -202,3 +202,27 @@
 (defn unsubscribe-chatroom
   [user-id room-id]
   (swap! chatrooms-ratom update-in [room-id] #(dissoc % user-id)))
+
+;; ----
+;; Game -- frontend
+;; ----
+
+(def starting-role-ratom (ratom nil))
+
+(defn set-starting-role
+  [role]
+  (reset! starting-role-ratom role))
+
+(defn get-starting-role
+  []
+  @starting-role-ratom)
+
+(def choice-ratom (ratom {:choice-type :seer-first-choice}))
+
+(defn get-choice
+  []
+  @choice-ratom)
+
+(defn set-choice
+  [choice-map]
+  (reset! choice-ratom choice-map))

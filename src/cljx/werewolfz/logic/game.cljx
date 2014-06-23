@@ -201,6 +201,7 @@
            (assoc-in [:roles robbed-person] :robber))
        game-state))))
 
+;; TODO: Once the game is at the last phase, send outputs to the clients.
 
 ;; ----------
 ;; User Input
@@ -234,3 +235,10 @@
 (defn phase-ready-atom [] (phase-ready? @game))
 
 (defn run-phase-atom [] (reset! game (run-phase @game)))
+
+
+
+
+;; ------------
+;; game choices
+;; ------------

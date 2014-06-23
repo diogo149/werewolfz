@@ -2,7 +2,8 @@
   (:require [reagent.core :as reagent]
             [werewolfz.logic.state :as state]
             [werewolfz.logic.services :as srv]
-            [werewolfz.logic.game :as game]))
+            [werewolfz.logic.game :as game]
+            [werewolfz.game :as game-view]))
 
 (defn chat-component
   []
@@ -51,7 +52,8 @@
      [:br]
      "In room: " room-id
      [:br]
-     "People in room:" (pr-str login-names)]))
+     "People in room:" (pr-str login-names)
+     [game-view/game-component]]))
 
 (defn logged-in-component
   []
