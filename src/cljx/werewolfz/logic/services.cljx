@@ -29,7 +29,8 @@
 
 (defn load-room
   []
-  (*send!* [:rooms/load]))
+  (*send!* [:rooms/load])
+  (*send!* [:rooms/list]))
 
 (defn join-room
   [room-id]

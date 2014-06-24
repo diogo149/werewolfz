@@ -44,6 +44,11 @@
       :not-found (state/set-temporary-message "Login not found")
       :taken (state/set-temporary-message "Login already taken"))))
 
+(defmethod client-handler :rooms/list
+  [{:keys [data]}]
+  (let [{:keys [room-ids]} data]
+    (state/set-rooms room-ids)))
+
 (defmethod client-handler :rooms/found
   [{:keys [data]}]
   (let [{:keys [room-id]} data]

@@ -1,6 +1,7 @@
 (ns werewolfz.logic.state
   (:require #+cljs [reagent.core :as reagent]
             [werewolfz.utils.timer :as timeru]
+            [werewolfz.utils.random :as randomu]
             [werewolfz.utils.logging :as log]))
 
 (def ratom #+cljs reagent/atom #+clj atom)
@@ -104,13 +105,27 @@
 ;; rooms
 ;; -----
 
+(def rooms-ratom (ratom
+                  #+clj (repeatedly 10 randomu/random-identifier)
+                  #+cljs nil))
 (def uid->room-ratom (ratom nil))
 (def room-state-ratom (ratom :?))
 (def room-content-ratom (ratom nil))
 
 (defn get-rooms
   []
-  (map str (range 3)))
+  @rooms-ratom)
+
+(defn pop-room
+  [room-id]
+  (swap! rooms-ratom
+         (fn [x] (->> x
+                      (filter #(= room-id %))
+                      (cons (randomu/random-identifier))))))
+
+(defn set-rooms
+  [room-ids]
+  (reset! rooms-ratom room-ids))
 
 (defn uid->room
   [uid]

@@ -72,12 +72,14 @@
 
 (defmethod server-handler :rooms/load
   [{:keys [uid data send-fn] :as msg}]
-  (println "loading rooms!")
   (if-let [room-id (state/uid->room uid)]
-    ;; want to behave the same as a join
     (do (send-fn uid [:rooms/found {:room-id room-id}])
         (sync-room-content send-fn room-id))
     (send-fn uid [:rooms/not-found])))
+
+(defmethod server-handler :rooms/list
+  [{:keys [uid data send-fn]}]
+  (send-fn uid [:rooms/list {:room-ids (state/get-rooms)}]))
 
 (defmethod server-handler :rooms/join
   [{:keys [uid data send-fn]}]
@@ -121,7 +123,7 @@
   [{:keys [data uid send-fn]}]
   ;; TODO: After the choice is made, try running game until you can't anymore or it
   ;; is daytime.
-  (let [room-id  (state/uid->room uid)]
+  (let [room-id (state/uid->room uid)]
     (state/swap-game room-id
                      #(game/add-input % (state/uid->login uid) data))
     ;; Make me a service, or whatever the backend equivalent is.
