@@ -1,5 +1,6 @@
 (ns werewolfz.core
   (:require [reagent.core :as reagent]
+            [werewolfz.utils.time :as timeu]
             [werewolfz.logic.state :as state]
             [werewolfz.logic.services :as srv]
             [werewolfz.logic.game :as game]
@@ -19,7 +20,7 @@
        (into [:ul]
              (for [[sender text date] (state/get-chat)]
                [:li [:b sender ": "]
-                "(" (str (.getHours date)) ":" (.getMinutes date) ") "
+                "(" (timeu/date->hh:MM:ss date) ") "
                 text]))])))
 
 (defn login-component
