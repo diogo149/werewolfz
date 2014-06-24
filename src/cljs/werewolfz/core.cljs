@@ -47,16 +47,19 @@
   (let [room-id (state/get-room-state)
         login-names (state/get-room-content)]
     [:div
-     [:button {:on-click srv/leave-room} "Leave Room"]
-     (when (<= 2 (count login-names))
-       [:button {:on-click #(srv/start-game room-id)} "Start!"])
-     [:br]
-     "In room: " room-id
-     [:br]
      "People in room:" (pr-str login-names)
-
-     [game-view/game-component]
-
+     [:br]
+     (if (state/get-in-game?)
+       ;; show game
+       [game-view/game-component]
+       ;; show room info if not in game
+       [:div
+        [:button {:on-click srv/leave-room} "Leave Room"]
+        (when (<= 3 (count login-names))
+          [:button {:on-click #(srv/start-game room-id)} "Start!"])
+        [:br]
+        "In room: " room-id
+        [:br]])
      [:br]
      [:h3 "Chat"]
      [chat-component]]))
@@ -78,7 +81,9 @@
    {:component-will-mount #(srv/load-login)
     :render
     (fn [this]
-      [:div [:h1 "Hi " (or (state/get-login-name) "stranger")]
+      [:div
+       [:h1 "Hi " (or (state/get-login-name) "stranger")]
+       [:h3 (state/get-temporary-message)]
        (case (state/get-login-state)
          :? [:div "Loading..."]
          :failure [login-component]

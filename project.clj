@@ -1,6 +1,6 @@
 (defproject werewolfz "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.6.0"]]
-  :jvm-opts ["-Xmx512m" "-Xms512m"]
+  :jvm-opts ["-Xmx256m"]
   :min-lein-version "2.0.0"
   :profiles
   {:dev-deps [:clj {:dependencies [[org.clojure/tools.namespace "0.2.4"]]

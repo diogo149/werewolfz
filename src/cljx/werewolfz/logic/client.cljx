@@ -41,8 +41,8 @@
   (let [{:keys [error]} data]
     (state/set-login-state :failure)
     (case error
-      :not-found (println "LOGIN NOT FOUND") ;; TODO
-      :taken (println "LOGIN TAKEN")))) ;; TODO
+      :not-found (state/set-temporary-message "Login not found")
+      :taken (state/set-temporary-message "Login already taken"))))
 
 (defmethod client-handler :rooms/found
   [{:keys [data]}]
@@ -68,4 +68,5 @@
   [{:keys [data]}]
   (let [{:keys [start-role]} data]
     ;; TODO something
+    (state/set-in-game? true)
     (state/set-starting-role (str start-role))))

@@ -1,8 +1,28 @@
 (ns werewolfz.logic.state
   (:require #+cljs [reagent.core :as reagent]
+            [werewolfz.utils.timer :as timeru]
             [werewolfz.utils.logging :as log]))
 
 (def ratom #+cljs reagent/atom #+clj atom)
+
+;; ----------
+;; misc state
+;; ----------
+
+(def temporary-message-ratom (ratom nil))
+
+(defn clear-temporary-message
+  []
+  (reset! temporary-message-ratom nil))
+
+(defn set-temporary-message
+  [msg]
+  (timeru/overwrite-timeout ::temporary-message clear-temporary-message 3000)
+  (reset! temporary-message-ratom msg))
+
+(defn get-temporary-message
+  []
+  @temporary-message-ratom)
 
 ;; -----------------
 ;; connection status
@@ -126,16 +146,6 @@
   [login-names]
   (reset! room-content-ratom login-names))
 
-
-
-(def rooms-ratom (ratom nil))
-(defn get-room
-  [room-id]
-  (get @rooms-ratom room-id))
-(defn set-room
-  [room-id val]
-  (swap! rooms-ratom assoc room-id val))
-
 ;; ----
 ;; game
 ;; ----
@@ -176,6 +186,20 @@
 ;; ----
 ;; Game -- frontend
 ;; ----
+
+(def in-game?-ratom (ratom false))
+
+(defn set-in-game?
+  [b]
+  (reset! in-game?-ratom b))
+
+(defn get-in-game?
+  []
+  @in-game?-ratom)
+
+(defn set-in-game
+  [b]
+  (reset! in-game?-ratom b))
 
 (def starting-role-ratom (ratom nil))
 
