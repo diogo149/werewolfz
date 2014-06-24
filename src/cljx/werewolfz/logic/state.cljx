@@ -177,17 +177,17 @@
 ;; Game -- frontend
 ;; ----
 
-(def starting-role-ratom (ratom nil))
+(def output-ratom (ratom nil))
 
-(defn set-starting-role
-  [role]
-  (reset! starting-role-ratom role))
-
-(defn get-starting-role
+(defn get-output
   []
-  @starting-role-ratom)
+  @output-ratom)
 
-(def choice-ratom (ratom {:choice-type :seer-first-choice}))
+(defn set-output
+  [output]
+  (reset! output-ratom output))
+
+(def choice-ratom (ratom {:choice-type nil}))
 
 (defn get-choice
   []
@@ -196,3 +196,15 @@
 (defn set-choice
   [choice-map]
   (reset! choice-ratom choice-map))
+
+
+(def starting-role-ratom (ratom nil))
+
+(defn set-starting-role
+  [role]
+  (reset! starting-role-ratom role)
+  (set-choice {:choice-type role}))
+
+(defn get-starting-role
+  []
+  @starting-role-ratom)
