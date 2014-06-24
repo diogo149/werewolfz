@@ -69,4 +69,9 @@
   (let [{:keys [start-role]} data]
     ;; TODO something
     (state/set-in-game? true)
-    (state/set-starting-role (str start-role))))
+    (state/set-starting-role start-role)))
+
+(defmethod client-handler :game/daytime
+  [{:keys [data]}]
+  (let [{:keys [output]} data]
+    (state/set-output output)))

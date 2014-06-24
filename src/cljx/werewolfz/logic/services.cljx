@@ -60,15 +60,33 @@
 
 ;; TODO: state/set-choice to be called in game.cljs
 ;; services only for making the choice.
-(defmethod make-choice :seer-first-choice
+(defmethod make-choice :seer
   [{:keys [choice]}]
-  (if :middle
+  (if (= choice :middle)
     (state/set-choice {:choice-type :seer-choose-middle-first})
     (state/set-choice {:choice-type :seer-choose-person})))
 
 (defmethod make-choice :seer-choose-person
   [{:keys [person]}]
   (state/set-choice nil)
-  (*send!* [:game/input {:input-type :seer
-                         :seer-choice "person"
-                         :seer-person-to-see person}]))
+  (*send!* [:game/choice {:input-type :seer
+                          :seer-choice "person"
+                          :seer-person-to-see person}]))
+
+(defmethod make-choice :seer-choose-middle-first
+  [{:keys [middle-index]}]
+  (state/set-choice {:choice-type :seer-choose-middle-second
+                     :first-middle middle-index}))
+
+(defmethod make-choice :seer-choose-middle-second
+  [{:keys [first-middle second-middle]}]
+  (state/set-choice nil)
+  (*send!* [:game/choice {:input-type :seer
+                          :seer-choice "middle"
+                          :seer-middle-indexes [first-middle second-middle]}]))
+
+(defmethod make-choice :robber
+  [{:keys [person]}]
+  (state/set-choice nil)
+  (*send!* [:game/choice {:input-type :robber
+                          :robbed-person person}]))

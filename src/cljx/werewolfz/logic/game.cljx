@@ -1,4 +1,5 @@
-(ns werewolfz.logic.game)
+(ns werewolfz.logic.game
+  (:require [werewolfz.logic.state :as state]))
 
 ;; -----
 ;; utils
@@ -77,6 +78,10 @@
    :robber
    {:next-phase :done}})
 
+(defn daytime?
+  [game]
+  (= (:next-phase game) :done))
+
 (defn choose-roles
   [num-players]
   {:pre [(> num-players 2)]}
@@ -128,9 +133,14 @@
    for the next phase to be executed."
   :next-phase)
 
+
 (defmethod phase-ready? :werewolf
   [game-state]
   true)
+
+(defmethod phase-ready? :done
+  [game-state]
+  false)
 
 (defmethod phase-ready? :seer
   [game-state]
@@ -175,6 +185,8 @@
         seer-output (when seer (merge {:output-type :seer}
                                       (if (= seer-choice "middle")
                                         (zipmap seer-middle-indexes
+                                                ;; TODO; Not returning the middle
+                                               ;; roles, not sure why.
                                                 (map #(get middle-roles %)
                                                      seer-middle-indexes))
                                         (hash-map seer-person-to-see
@@ -237,8 +249,18 @@
 (defn run-phase-atom [] (reset! game (run-phase @game)))
 
 
+;; ----------------------------------------------------------
+;; Running the game. Probably doesn't belong in the same file
+;; ----------------------------------------------------------
 
-
-;; ------------
-;; game choices
-;; ------------
+(defn run-until-blocked
+  "runs until the game is blocked. Returns true if over."
+  ;; TODO: Should just take a game and return a game. A different function
+  ;; should alter the atom.
+  [game-id]
+  (when-let [game (state/get-game game-id)]
+    (if (daytime? game)
+      true
+      (when (phase-ready? game)
+        (state/swap-game  game-id run-phase)
+        (run-until-blocked game-id)))))

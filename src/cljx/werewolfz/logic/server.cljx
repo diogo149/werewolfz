@@ -121,5 +121,17 @@
   [{:keys [data uid send-fn]}]
   ;; TODO: After the choice is made, try running game until you can't anymore or it
   ;; is daytime.
-  (state/swap-game (state/uid->room uid)
-                   #(game/add-input % (state/uid->login uid) data)))
+  (let [room-id  (state/uid->room uid)]
+    (state/swap-game room-id
+                     #(game/add-input % (state/uid->login uid) data))
+    ;; Make me a service, or whatever the backend equivalent is.
+    (when (game/run-until-blocked room-id)
+      ;; Return the outputs when created
+      (let [uids (state/room->uids room-id)
+            game-state (state/get-game room-id)]
+        (doseq [room-uid uids]
+          (send-fn room-uid
+                   [:game/daytime
+                    {:output (-> game-state
+                                   :outputs
+                                   (get (state/uid->login room-uid)))}]))))))
