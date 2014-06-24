@@ -77,7 +77,7 @@
    {:component-will-mount #(srv/load-login)
     :render
     (fn [this]
-      [:div [:h1 "Hello " (or (state/get-login-name) "stranger")]
+      [:div [:h1 "Hi " (or (state/get-login-name) "stranger")]
        (case (state/get-login-state)
          :? [:div "Loading..."]
          :failure [login-component]
