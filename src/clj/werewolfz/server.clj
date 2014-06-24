@@ -13,7 +13,7 @@
             [werewolfz.utils.server :as serveru]))
 
 (defn start-server
-  [{:keys [production? websocket]}]
+  [{:keys [production? websocket port]}]
   (httpkit/run-server
    (-> routes/app-routes
        ((fn [handler]
@@ -32,22 +32,25 @@
        ring.middleware.json/wrap-json-params
        ring.middleware.params/wrap-params
        serveru/wrap-request-logging)
-   {:port 9090
+   {:port port
     :thread 8
     :worker-name-prefix "server-"}))
 
 (defrecord ServerComponent [production? ;; boolean
                             websocket ;; websocket component
-                            server] ;; callback to cancel started server
+                            server ;; callback to cancel started server
+                            port ;; port num
+                            ]
   component/Lifecycle
   (start [this]
     ;; In the 'start' method, a component may assume that its
     ;; dependencies are available and have already been started.
-    (log/info "Starting server")
+    (log/info "Starting server on port" port)
     (if server
       this
       (let [new-server (start-server {:production? production?
-                                      :websocket websocket})]
+                                      :websocket websocket
+                                      :port port})]
         (assoc this :server new-server))))
   (stop [this]
     ;; Likewise, in the 'stop' method, a component may assume that its
@@ -57,5 +60,5 @@
     (dissoc this :server)))
 
 (defn server-component
-  [production?]
-  (map->ServerComponent {:production? production?}))
+  [production? port]
+  (map->ServerComponent {:production? production? :port port}))

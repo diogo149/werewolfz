@@ -5,6 +5,12 @@
             werewolfz.timer
             werewolfz.server))
 
+(defn get-port
+  []
+  (if-let [port (System/getenv "PORT")]
+    (Integer/parseInt port)
+    9090))
+
 (defn main-system
   [{:keys [production?]}]
   (component/system-map
@@ -14,5 +20,6 @@
    (component/using (werewolfz.websocket/websocket-handler-component
                      werewolfz.logic.server/handler)
                     [:websocket])
-   :server (component/using (werewolfz.server/server-component production?)
+   :server (component/using (werewolfz.server/server-component production?
+                                                               (get-port))
                             [:websocket])))

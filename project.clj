@@ -1,30 +1,35 @@
 (defproject werewolfz "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.6.0"]]
   :jvm-opts ["-Xmx512m" "-Xms512m"]
+  :min-lein-version "2.0.0"
   :profiles
-  {:dev [:clj {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
-               :plugins [[lein-shell "0.4.0"]]
-               :source-paths ["src/dev"]
-               :repl-options {:init-ns user}
-               :aliases
-               { ;; cleaning
-                "clean-cljs" ["shell" "rm" "-rf" "resources/public/cljs" ","]
-                "clean-cljx" ["shell" "rm" "-rf" "cljx-target/" ","]
-                "clean-all" ["do" "clean," "clean-cljs," "clean-cljx,"]
-                ;; clojurescript
-                "cljs1" ["do" "clean-cljs,"
-                         "with-profile" "cljs" "cljsbuild" "once" "prod,"]
-                "cljs" ["do" "clean-cljs,"
-                        "with-profile" "cljs" "cljsbuild" "auto" "dev"]
-                ;; cljx
-                "cljx1" ["do" "clean-cljx,"
-                         "with-profile" "cljx" "cljx" "once,"]
-                "cljx" ["do" "clean-cljx,"
-                        "with-profile" "cljx" "cljx" "auto,"]
-                ;; clj
-                "clj" ["do" "clean,"
-                       "compile,"
-                       "repl,"]}}]
+  {:dev-deps [:clj {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
+                    :plugins [[lein-shell "0.4.0"]]
+                    :source-paths ["src/dev"]
+                    :repl-options {:init-ns user}}]
+   :dev [:dev-deps
+         {:aliases
+          { ;; cleaning
+           "clean-cljs" ["shell" "rm" "-rf" "resources/public/cljs" ","]
+           "clean-cljx" ["shell" "rm" "-rf" "cljx-target/" ","]
+           "clean-all" ["do" "clean," "clean-cljs," "clean-cljx,"]
+           ;; clojurescript
+           "cljs1" ["do" "clean-cljs,"
+                    "with-profile" "cljs" "cljsbuild" "once" "prod,"]
+           "cljs" ["do" "clean-cljs,"
+                   "with-profile" "cljs" "cljsbuild" "auto" "dev"]
+           ;; cljx
+           "cljx1" ["do" "clean-cljx,"
+                    "with-profile" "cljx" "cljx" "once,"]
+           "cljx" ["do" "clean-cljx,"
+                   "with-profile" "cljx" "cljx" "auto,"]
+           ;; clj
+           "clj" ["do" "clean,"
+                  "repl,"]
+           "uberjar" ["do" "clean-all,"
+                      "cljx1,"
+                      "cljs1,"
+                      "with-profile" "uberjar" "uberjar,"]}}]
    :cljx {:plugins [[com.keminglabs/cljx "0.4.0"]]
           :cljx {:builds [{:source-paths ["src/cljx"]
                            :output-path "cljx-target/cljs"
@@ -33,8 +38,7 @@
                            :output-path "cljx-target/clj"
                            :rules :clj}]}}
    :shared {:dependencies [[org.clojure/core.async "0.1.267.0-0d7780-alpha"]
-                           [com.taoensso/sente "0.14.1"]
-                           #_[org.clojure/core.match "0.2.1"]]}
+                           [com.taoensso/sente "0.14.1"]]}
    :clj [:shared
          {:main werewolfz.main
           :dependencies [[org.clojure/tools.logging "0.3.0"]
@@ -84,4 +88,9 @@
                        :externs [ ;; "jquery/externs/jquery.js"
                                  "src/js/extern.js"]
                        :closure-warnings
-                       {:non-standard-jsdoc :off}}}]}}]})
+                       {:non-standard-jsdoc :off}}}]}}]
+   :uberjar [:clj
+             {:aot [;; for some reason, this is necessary along with the regex
+                    werewolfz.main
+                    #"werewolfz.*"]
+              :uberjar-name "werewolfz-standalone.jar"}]})
