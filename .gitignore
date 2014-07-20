@@ -10,3 +10,9 @@ pom.xml.asc
 /.lein-*
 /.nrepl-port
 /resources/public/cljs
+
+# heroku stuff
+.bundle/
+Gemfile.lock
+vendor/
+
